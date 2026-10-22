@@ -1,0 +1,31 @@
+# go vet (Linux and Windows) and the tests, on every push and pull request.
+# No secrets: nothing here signs, publishes or deploys.
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - name: go vet (linux, windows, windows + devsink)
+        run: |
+          go vet ./...
+          GOOS=windows go vet ./...
+          GOOS=windows go vet -tags devsink ./...
+      - name: go test
+        run: go test -race ./...
+      - name: build the Windows program
+        run: GOOS=windows CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H=windowsgui" -o /tmp/StockpilePrintHelper.exe ./cmd/stockpile-print-helper
+      - name: no program launches, no listening sockets (SECURITY.md)
+        run: |
+          ! grep -rn "os/exec\|StartProcess\|CreateProcess\|ShellExecute" --include=*.go .
+          ! grep -rln "net.Listen\|ListenPacket" --include=*.go . | grep -v "_test.go"

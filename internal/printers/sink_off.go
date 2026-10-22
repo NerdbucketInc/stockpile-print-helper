@@ -2,7 +2,7 @@
 
 package printers
 
-import "github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
+import "github.com/nerdbucketinc/stockpile-print-helper/internal/config"
 
 // A release build has no file printer: documents are never written to disk.
 func devSink(config.Settings) []Printer { return nil }

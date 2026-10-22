@@ -17,13 +17,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/agent"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/journal"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/netpolicy"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/printers"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/secret"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/agent"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/journal"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/netpolicy"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/printers"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/secret"
 )
 
 // App is one helper on this computer.

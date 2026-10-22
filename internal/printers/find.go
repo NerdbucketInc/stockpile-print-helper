@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/netpolicy"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/netpolicy"
 )
 
 // Found is a printer "Find printers" saw. Nothing is kept until a person

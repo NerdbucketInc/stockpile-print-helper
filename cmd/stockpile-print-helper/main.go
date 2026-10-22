@@ -16,14 +16,14 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/app"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/journal"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/netpolicy"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/printers"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/secret"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/ui"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/app"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/journal"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/netpolicy"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/printers"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/secret"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/ui"
 )
 
 // Set at build time: -ldflags "-X main.Version=1.0.0 -X main.Server=https://helper.example".

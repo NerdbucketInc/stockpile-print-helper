@@ -4,10 +4,9 @@ A small, open-source program for a computer at a shop. It lets Stockpile print
 receipts, shipping labels and packing slips on that computer's printers
 without a print window each time.
 
-It lives in the Stockpile repository for now (`apps/print-helper/`). It moves
-to its own public repository once the publishing details are settled. It is
-Go with no third-party modules and no cgo: just the standard library and
-Windows' own DLLs.
+It is Go with no third-party modules and no cgo: just the standard library
+and Windows' own DLLs. Licensed under the Apache License 2.0 (LICENSE);
+copyright Nerdbucket (NOTICE).
 
 ## What it does
 
@@ -117,8 +116,10 @@ powershell -File packaging/build-msix.ps1 -Version 1.0.0.0 -Exe binStockpilePrin
 ```
 
 The package is unsigned: the Microsoft Store signs it when it's published.
-Identity Name and Publisher come from the Store reservation; until the
-publishing account is settled the script uses development values. The
+The publisher is Nerdbucket's Microsoft Store company account. Identity Name
+and the exact Publisher string come from the Store reservation (Partner
+Center › Product identity); until then the script's defaults are
+placeholders. The
 script prints the program's SHA-256 for the release notes.
 
 ## How it prints
@@ -172,5 +173,6 @@ It runs these steps in order:
 7. Removes the helper in Stockpile. The running helper stops and forgets its
    token.
 
-This folder is not an npm workspace (it has no `package.json`), and the Node
-CI doesn't build it.
+The end-to-end test needs a Stockpile server to talk to, so it isn't part of
+CI; CI (`.github/workflows/ci.yml`) runs `go vet` for Linux and Windows and
+`go test -race` on every push and pull request.

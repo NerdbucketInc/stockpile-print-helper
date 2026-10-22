@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/journal"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/pages"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/printers"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/secret"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/zplguard"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/journal"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/pages"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/printers"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/secret"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/zplguard"
 )
 
 // Agent runs one paired helper.

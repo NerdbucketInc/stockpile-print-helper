@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/ui"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/ui"
 )
 
 func main() {

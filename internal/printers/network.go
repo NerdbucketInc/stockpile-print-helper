@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/netpolicy"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/pages"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/netpolicy"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/pages"
 )
 
 // Timeouts for a raw (port 9100) printer.

@@ -1,3 +1,3 @@
-module github.com/hyperbolic2346/stockpile/apps/print-helper
+module github.com/nerdbucketinc/stockpile-print-helper
 
 go 1.24

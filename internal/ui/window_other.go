@@ -5,7 +5,7 @@ package ui
 import (
 	"errors"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/app"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/app"
 )
 
 // Run: the window is Windows only (a Mac build gets its own, later). Use the

@@ -2,8 +2,8 @@
 <!--
   The Stockpile Print Helper's MSIX manifest. {{…}} values are filled in by
   build-msix.ps1. Identity Name and Publisher come from the Microsoft Store
-  reservation once the owner settles the publishing account (until then,
-  development values). Microsoft re-signs the package when it is published.
+  reservation on Nerdbucket's company account (placeholders until then).
+  Microsoft re-signs the package when it is published.
 
   - runFullTrust: a desktop program that prints to this computer's printers.
   - windows.startupTask: starts at sign-in, as the signed-in user (no

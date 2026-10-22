@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/pages"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/pages"
 )
 
 // Formats a printer takes, as reported to Stockpile.

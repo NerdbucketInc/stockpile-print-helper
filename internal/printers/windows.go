@@ -10,8 +10,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/pages"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/pages"
 )
 
 // Windows printing: the printers installed in Windows (EnumPrinters), raw

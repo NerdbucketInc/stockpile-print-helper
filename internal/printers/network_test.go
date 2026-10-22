@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/netpolicy"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/netpolicy"
 )
 
 // A private address of this machine: the helper prints only to those, so the

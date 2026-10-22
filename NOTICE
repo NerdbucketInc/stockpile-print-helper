@@ -1,0 +1,6 @@
+Stockpile Print Helper
+Copyright 2026 Nerdbucket
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+It includes no third-party code: it is built from the Go standard library and
+calls only Windows' own system libraries.

@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/api"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/config"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/journal"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/pages"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/printers"
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/secret"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/api"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/config"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/journal"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/pages"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/printers"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/secret"
 )
 
 // fakeStockpile serves /api/helper/v1 the way Stockpile does, for one job.

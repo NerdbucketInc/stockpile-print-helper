@@ -1,5 +1,12 @@
 # Print Helper: security notes
 
+## Reporting a vulnerability
+
+Please report it privately through this repository's **Security** tab
+("Report a vulnerability"), not in a public issue. We'll answer there.
+
+## What the code promises
+
 Each claim in README.md is backed by code a reviewer can check here.
 
 | Claim | Where |

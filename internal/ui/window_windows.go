@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/hyperbolic2346/stockpile/apps/print-helper/internal/app"
+	"github.com/nerdbucketinc/stockpile-print-helper/internal/app"
 )
 
 // The helper's window and tray icon, with Windows' own controls (user32,

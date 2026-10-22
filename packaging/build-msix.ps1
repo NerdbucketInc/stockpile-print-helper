@@ -7,18 +7,20 @@
 
   -Exe: the GUI build (go build -ldflags "-H=windowsgui -X main.Version=… -X main.Server=…").
   -Assets: a folder from `go run ./cmd/mkassets DIR`.
-  Identity values come from the Store reservation (Partner Center › Product
-  identity); until the owner settles the publishing account, the defaults
-  below are development values that only work for a local test.
+  Identity values come from the Store reservation on Nerdbucket's Microsoft
+  Store company account (Partner Center › Product identity); the defaults
+  below are placeholders until then.
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Version,
   [Parameter(Mandatory = $true)][string]$Exe,
   [Parameter(Mandatory = $true)][string]$Assets,
   [Parameter(Mandatory = $true)][string]$Out,
-  [string]$IdentityName = "Stockpile.PrintHelper.Dev",
-  [string]$Publisher = "CN=Stockpile Print Helper Development",
-  [string]$PublisherDisplay = "Stockpile (development build)"
+  [string]$IdentityName = "Nerdbucket.StockpilePrintHelper",
+  # Placeholder: the exact CN=… string is the one Partner Center shows for
+  # Nerdbucket's account (Product identity › Package/Identity/Publisher).
+  [string]$Publisher = "CN=Nerdbucket",
+  [string]$PublisherDisplay = "Nerdbucket"
 )
 $ErrorActionPreference = "Stop"
 if ($Version -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw "Version must be four numbers, like 1.0.0.0" }
