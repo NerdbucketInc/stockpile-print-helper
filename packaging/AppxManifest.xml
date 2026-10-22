@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Stockpile Print Helper's MSIX manifest. {{…}} values are filled in by
+  build-msix.ps1. Identity Name and Publisher come from the Microsoft Store
+  reservation once the owner settles the publishing account (until then,
+  development values). Microsoft re-signs the package when it is published.
+
+  - runFullTrust: a desktop program that prints to this computer's printers.
+  - windows.startupTask: starts at sign-in, as the signed-in user (no
+    service, no administrator). The user can turn it off in Windows
+    Settings › Apps › Startup.
+  - No other capability: it needs no files, camera, location or the like.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop rescap">
+  <Identity Name="{{IDENTITY_NAME}}" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>Stockpile Print Helper</DisplayName>
+    <PublisherDisplayName>{{PUBLISHER_DISPLAY}}</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Prints Stockpile's receipts, shipping labels and packing slips on this computer's printers.</Description>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Applications>
+    <Application Id="PrintHelper" Executable="StockpilePrintHelper.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Stockpile Print Helper"
+        Description="Prints Stockpile's receipts, shipping labels and packing slips on this computer's printers."
+        BackgroundColor="#2f5d8a"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png" />
+      <Extensions>
+        <desktop:Extension Category="windows.startupTask" Executable="StockpilePrintHelper.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="StockpilePrintHelperAtSignIn" Enabled="true" DisplayName="Stockpile Print Helper" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

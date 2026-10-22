@@ -62,9 +62,27 @@ Windows' own DLLs.
   held poll. The helper then forgets its token.
 - `unpair` does the same from this computer.
 
-## Commands (this build)
+## The window and the tray icon
+
+With no command (how Windows starts it at sign-in, and from the Start menu) it
+shows its window when it isn't paired, and otherwise sits by the clock as an
+"S" with a dot (green connected, amber paused, red can't reach Stockpile,
+grey not paired). Click the icon to open the window; right-click for Open,
+Pause/Resume printing and Quit. Closing the window keeps it running.
+
+The window (`internal/ui`, Windows' own controls through `syscall` — no UI
+toolkit) shows the connection, Pair (not paired), Pause printing / Resume,
+the printers it can use, Find printers and Add by IP, recent jobs, Unpair
+(with a confirm), the version and the log folder. It opens no browser and
+starts no program: links are shown as text. A second copy just brings the
+first one's window up. Everything goes through `internal/app`, the same
+steps as the commands below. `--ui-selftest FILE` lists what the window
+shows and closes (for tests).
+
+## Commands
 
 ```
+stockpile-print-helper            the window and tray icon
 stockpile-print-helper pair --server https://YOUR-STOCKPILE CODE
 stockpile-print-helper run
 stockpile-print-helper status
@@ -85,8 +103,23 @@ once it's packaged. The folder holds:
 - `journal.jsonl` (job ids, titles, printers and results, kept 7 days)
 - `logs/` (7 days, plain text, never document contents)
 
-The Windows window and tray icon, and the MSIX packaging, come in the next
-PR. They wrap these same commands.
+## Packaging (MSIX)
+
+`packaging/AppxManifest.xml` is the package: the program as a full-trust
+desktop app (`runFullTrust`) with a `windows.startupTask` (it starts at
+sign-in, as the signed-in user — no service, no administrator; the user can
+turn it off in Windows Settings › Apps › Startup). No other capability.
+
+```
+GOOS=windows CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H=windowsgui -X main.Version=1.0.0 -X main.Server=https://helper.<domain>" -o bin/StockpilePrintHelper.exe ./cmd/stockpile-print-helper
+go run ./cmd/mkassets bin/assets
+powershell -File packaging/build-msix.ps1 -Version 1.0.0.0 -Exe binStockpilePrintHelper.exe -Assets binassets -Out binStockpilePrintHelper.msix
+```
+
+The package is unsigned: the Microsoft Store signs it when it's published.
+Identity Name and Publisher come from the Store reservation; until the
+publishing account is settled the script uses development values. The
+script prints the program's SHA-256 for the release notes.
 
 ## How it prints
 

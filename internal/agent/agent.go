@@ -33,6 +33,24 @@ type Agent struct {
 	ReHello time.Duration
 	// PollWait: how long one poll is held (≤ 25 s).
 	PollWait int
+	// OnState, when set, hears whether Stockpile answered and what was
+	// reported (the window shows it).
+	OnState func(State)
+}
+
+// State is what the window shows about the connection.
+type State struct {
+	Connected bool
+	Problem   string
+	Printers  []api.Printer
+	At        time.Time
+}
+
+func (a *Agent) report(st State) {
+	if a.OnState != nil {
+		st.At = time.Now()
+		a.OnState(st)
+	}
 }
 
 // Backoff after a failed request: 1, 2, 5, 10, then 30 s.
@@ -60,6 +78,7 @@ func (a *Agent) Run(ctx context.Context) error {
 			return api.ErrRevoked
 		}
 		if err != nil && ctx.Err() == nil {
+			a.report(State{Connected: false, Problem: err.Error()})
 			wait := Backoff[min(fails, len(Backoff)-1)]
 			fails++
 			a.Log.Printf("Can't reach Stockpile (%v). Trying again in %s.", err, wait)
@@ -87,6 +106,7 @@ func (a *Agent) round(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	a.report(State{Connected: true, Printers: h.Printers})
 	for _, e := range told {
 		a.Journal.Ack(e.JobID)
 	}

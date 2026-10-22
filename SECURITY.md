@@ -4,7 +4,7 @@ Each claim in README.md is backed by code a reviewer can check here.
 
 | Claim | Where |
 |---|---|
-| No program or shell is run | No `os/exec`, `syscall.StartProcess` or `CreateProcess` anywhere. Check with `grep -rn "os/exec\|StartProcess\|CreateProcess" .` (expect nothing). |
+| No program or shell is run | No `os/exec`, `syscall.StartProcess`, `CreateProcess` or `ShellExecute` anywhere (the window shows links as text). Check with `grep -rn "os/exec\|StartProcess\|CreateProcess" .` (expect nothing). |
 | No listening socket | No `net.Listen` or `ListenPacket` outside `_test.go` files. |
 | Talks only to Stockpile and kept printers | `internal/api` takes https (http only to localhost, for development). `internal/netpolicy` is checked on add and on every connect. |
 | No file reads beyond its own folder | `internal/config`, `internal/secret` and `internal/journal` read only inside the helper's folder. |
