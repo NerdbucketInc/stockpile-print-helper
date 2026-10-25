@@ -1,0 +1,57 @@
+# Builds the Windows program from a v* tag and publishes it as a GitHub
+# release. Unsigned for now: Windows SmartScreen warns on first run until
+# signing is set up (SignPath Foundation, see README).
+#
+# Stockpile's address comes from the repository variable STOCKPILE_SERVER
+# (Settings › Secrets and variables › Actions › Variables), never from source.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: test
+        run: |
+          go vet ./...
+          GOOS=windows go vet ./...
+          go test -race ./...
+      - name: build the Windows program
+        env:
+          SERVER: ${{ vars.STOCKPILE_SERVER }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          test -n "$SERVER" || { echo "Set the STOCKPILE_SERVER repository variable"; exit 1; }
+          case "$SERVER" in https://*) ;; *) echo "STOCKPILE_SERVER must start with https://"; exit 1;; esac
+          version="${TAG#v}"
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath \
+            -ldflags "-s -w -H=windowsgui -X main.Version=${version} -X main.Server=${SERVER}" \
+            -o dist/StockpilePrintHelper.exe ./cmd/stockpile-print-helper
+          (cd dist && sha256sum StockpilePrintHelper.exe > SHA256SUMS.txt)
+      - name: publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cat > notes.md <<EOF
+          **Unsigned test build.** Windows shows "Windows protected your PC" the first time. Click **More info**, then **Run anyway**.
+
+          1. Download \`StockpilePrintHelper.exe\` and run it. There's no installer; it keeps its settings in your AppData folder.
+          2. In Stockpile, go to **Settings › Printing** and click **Get a pairing code**.
+          3. Type the code in the helper's window and click **Pair**.
+          4. To have it start when you sign in, put a shortcut to it in your Startup folder (press Win+R and type \`shell:startup\`). The plain .exe doesn't do that on its own, and it doesn't update itself: download a newer release to update. The Microsoft Store version will do both.
+
+          SHA-256: \`$(cut -d' ' -f1 dist/SHA256SUMS.txt)\`
+          EOF
+          gh release create "$TAG" dist/StockpilePrintHelper.exe dist/SHA256SUMS.txt \
+            --title "Stockpile Print Helper ${TAG}" --notes-file notes.md --prerelease
