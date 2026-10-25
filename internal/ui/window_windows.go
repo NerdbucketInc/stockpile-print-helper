@@ -95,6 +95,8 @@ const (
 	wmClose       = 0x0010
 	wmSetFont     = 0x0030
 	wmCommand     = 0x0111
+	wmSysCommand  = 0x0112
+	scMinimize    = 0xF020
 	wmTimer       = 0x0113
 	wmApp         = 0x8000
 	wmTray        = wmApp + 1
@@ -120,6 +122,7 @@ const (
 	bsDefPush     = 0x00000001
 	swHide        = 0
 	swShow        = 5
+	swRestore     = 9
 	errAlreadyEx  = 183
 	nimAdd        = 0
 	nimModify     = 1
@@ -215,7 +218,9 @@ type window struct {
 	font     uintptr
 	bold     uintptr
 	ctl      map[int]uintptr
-	icon     uintptr
+	appIcon  uintptr // the window's and taskbar's; never destroyed
+	appSmall uintptr
+	icon     uintptr // the tray's, remade when its status dot changes
 	dot      string
 	paused   bool
 	mu       sync.Mutex
@@ -274,8 +279,12 @@ func Run(a *app.App, show bool, selftest string) error {
 func (w *window) create() error {
 	inst, _, _ := pGetModuleHandleW.Call(0)
 	cursor, _, _ := pLoadCursorW.Call(0, idcArrow)
+	// The window's icon is its own handle: the tray's is destroyed and remade
+	// whenever its status dot changes, which used to leave the window and
+	// taskbar with no icon at all.
+	w.appIcon, w.appSmall = makeIcon(32, nil), makeIcon(16, nil)
 	w.icon = makeIcon(32, nil)
-	wc := wndClassEx{WndProc: syscall.NewCallback(wndProc), Instance: inst, Cursor: cursor, Background: colorWindow + 1, ClassName: u16(className), Icon: w.icon, IconSm: w.icon}
+	wc := wndClassEx{WndProc: syscall.NewCallback(wndProc), Instance: inst, Cursor: cursor, Background: colorWindow + 1, ClassName: u16(className), Icon: w.appIcon, IconSm: w.appSmall}
 	wc.Size = uint32(unsafe.Sizeof(wc))
 	if r, _, err := pRegisterClassExW.Call(uintptr(unsafe.Pointer(&wc))); r == 0 {
 		return fmt.Errorf("couldn't register the window: %v", err)
@@ -421,7 +430,9 @@ func (w *window) list(id int, rows []string) {
 }
 
 func (w *window) show() {
-	pShowWindow.Call(w.hwnd, swShow)
+	// Restore, not just show: a window minimized some other way (Win+D)
+	// would otherwise stay minimized.
+	pShowWindow.Call(w.hwnd, swRestore)
 	pSetForegroundWindow.Call(w.hwnd)
 }
 
@@ -672,6 +683,12 @@ func wndProc(hwnd uintptr, m uint32, wp, lp uintptr) uintptr {
 	case wmShowMe:
 		w.show()
 		return 0
+	case wmSysCommand:
+		// Minimize goes to the tray, like close: no taskbar button.
+		if wp&0xFFF0 == scMinimize {
+			pShowWindow.Call(hwnd, swHide)
+			return 0
+		}
 	case wmClose:
 		// Closing the window keeps the helper running by the clock.
 		pShowWindow.Call(hwnd, swHide)
