@@ -56,11 +56,39 @@ var (
 	pFindWindowW              = user32.NewProc("FindWindowW")
 	pEnumChildWindows         = user32.NewProc("EnumChildWindows")
 	pIsWindowVisible          = user32.NewProc("IsWindowVisible")
+	pSetWindowPos             = user32.NewProc("SetWindowPos")
+	pGetWindowRect            = user32.NewProc("GetWindowRect")
+	pGetClientRect            = user32.NewProc("GetClientRect")
 	pShellNotifyIconW         = shell32.NewProc("Shell_NotifyIconW")
 	pGetModuleHandleW         = kernel32.NewProc("GetModuleHandleW")
 	pCreateMutexW             = kernel32.NewProc("CreateMutexW")
+	pGetCurrentPackageName    = kernel32.NewProc("GetCurrentPackageFullName")
 	pCreateFontW              = gdi32.NewProc("CreateFontW")
 )
+
+const (
+	swpNoMove     = 0x2
+	swpNoZOrder   = 0x4
+	swpNoActivate = 0x10
+)
+
+// appmodelNoPackage is GetCurrentPackageFullName's answer when the program
+// isn't running from an MSIX package.
+const appmodelNoPackage = 15700
+
+type rect struct{ Left, Top, Right, Bottom int32 }
+
+// packaged reports whether the helper runs from its MSIX package (the
+// Microsoft Store build), which starts at sign-in and updates by itself.
+// The plain .exe from a GitHub release does neither.
+func packaged() bool {
+	if pGetCurrentPackageName.Find() != nil {
+		return false
+	}
+	var n uint32
+	r, _, _ := pGetCurrentPackageName.Call(uintptr(unsafe.Pointer(&n)), 0)
+	return r != appmodelNoPackage
+}
 
 const (
 	wmDestroy     = 0x0002
@@ -269,27 +297,31 @@ func (w *window) create() error {
 		bold       bool
 	}
 	for _, k := range []c{
+		// Heights fit the text: a line of this font is about 21 px, so a box
+		// is 22 px (one line), 46 (two) or 68 (three). Too short a box cuts
+		// off the last line of wrapped text. idMsg and idFooter move with the
+		// view (fit).
 		{idStatus, "STATIC", "", 16, 12, 470, 22, 0, true},
-		{idStatusSub, "STATIC", "", 16, 36, 470, 34, 0, false},
-		{idPairTitle, "STATIC", "Pair this computer with your shop", 16, 84, 470, 22, 0, true},
-		{idPairHelp, "STATIC", "In Stockpile, go to Settings › Printing and click Get a pairing code. Type the code here.", 16, 110, 470, 36, 0, false},
-		{idCode, "EDIT", "", 16, 152, 200, 26, wsBorder | wsTabStop | esUppercase | esAutoHScroll, false},
-		{idPair, "BUTTON", "Pair", 226, 151, 90, 28, wsTabStop | bsDefPush, false},
-		{idPairNote, "STATIC", "Until it's paired, this helper doesn't connect to anything.", 16, 188, 470, 40, 0, false},
-		{idPause, "BUTTON", "Pause printing", 16, 76, 150, 28, wsTabStop, false},
-		{idPrintersLbl, "STATIC", "PRINTERS THIS HELPER CAN USE", 16, 116, 470, 18, 0, true},
-		{idPrinters, "LISTBOX", "", 16, 136, 470, 104, wsBorder | wsVScroll | lbsNoSel | lbsNoIntegral, false},
-		{idFind, "BUTTON", "Find printers on the network", 16, 246, 210, 26, wsTabStop, false},
-		{idIP, "EDIT", "", 236, 247, 150, 24, wsBorder | wsTabStop | esAutoHScroll, false},
-		{idAdd, "BUTTON", "Add by IP", 392, 246, 94, 26, wsTabStop, false},
-		{idFindNote, "STATIC", "Printers installed in Windows show up by themselves. The helper only looks around the network when you click Find. By IP: your own network only (192.168.x.x, 10.x.x.x, 172.16–31.x.x).", 16, 278, 470, 50, 0, false},
-		{idJobsLbl, "STATIC", "RECENT JOBS", 16, 334, 470, 18, 0, true},
-		{idJobs, "LISTBOX", "", 16, 354, 470, 150, wsBorder | wsVScroll | lbsNoSel | lbsNoIntegral, false},
-		{idJobsNote, "STATIC", "The helper keeps no copy of any document. Only this list is kept (7 days).", 16, 508, 470, 20, 0, false},
-		{idStartup, "STATIC", "Starts when you sign in to Windows (turn that off in Windows Settings › Apps › Startup). Updates come through the Microsoft Store.", 16, 532, 470, 36, 0, false},
-		{idUnpair, "BUTTON", "Unpair", 16, 574, 200, 28, wsTabStop, false},
-		{idFooter, "STATIC", "", 16, 610, 470, 40, 0, false},
-		{idMsg, "STATIC", "", 16, 230, 470, 40, 0, false},
+		{idStatusSub, "STATIC", "", 16, 38, 470, 46, 0, false},
+		{idPairTitle, "STATIC", "Pair this computer with your shop", 16, 96, 470, 22, 0, true},
+		{idPairHelp, "STATIC", "In Stockpile, go to Settings › Printing and click Get a pairing code. Type the code here.", 16, 122, 470, 46, 0, false},
+		{idCode, "EDIT", "", 16, 174, 200, 26, wsBorder | wsTabStop | esUppercase | esAutoHScroll, false},
+		{idPair, "BUTTON", "Pair", 226, 173, 90, 28, wsTabStop | bsDefPush, false},
+		{idPairNote, "STATIC", "Until it's paired, this helper doesn't connect to anything.", 16, 210, 470, 46, 0, false},
+		{idPause, "BUTTON", "Pause printing", 16, 96, 150, 28, wsTabStop, false},
+		{idPrintersLbl, "STATIC", "PRINTERS THIS HELPER CAN USE", 16, 136, 470, 18, 0, true},
+		{idPrinters, "LISTBOX", "", 16, 158, 470, 88, wsBorder | wsVScroll | lbsNoSel | lbsNoIntegral, false},
+		{idFind, "BUTTON", "Find printers on the network", 16, 252, 210, 26, wsTabStop, false},
+		{idIP, "EDIT", "", 236, 253, 150, 24, wsBorder | wsTabStop | esAutoHScroll, false},
+		{idAdd, "BUTTON", "Add by IP", 392, 252, 94, 26, wsTabStop, false},
+		{idFindNote, "STATIC", "Printers installed in Windows show up by themselves. Find looks on your network only when you click it. Add by IP: your own network only (10.x, 172.16–31.x, 192.168.x).", 16, 284, 470, 68, 0, false},
+		{idJobsLbl, "STATIC", "RECENT JOBS", 16, 362, 470, 18, 0, true},
+		{idJobs, "LISTBOX", "", 16, 384, 470, 100, wsBorder | wsVScroll | lbsNoSel | lbsNoIntegral, false},
+		{idJobsNote, "STATIC", "The helper keeps no copy of any document. Only this list is kept (7 days).", 16, 490, 470, 46, 0, false},
+		{idStartup, "STATIC", startupNote(), 16, 542, 470, 68, 0, false},
+		{idUnpair, "BUTTON", "Unpair", 16, 616, 200, 28, wsTabStop, false},
+		{idFooter, "STATIC", "", 16, 690, 470, 68, 0, false},
+		{idMsg, "STATIC", "", 226, 616, 260, 68, 0, false},
 	} {
 		h, _, _ := pCreateWindowExW.Call(0, uintptr(unsafe.Pointer(u16(k.class))), uintptr(unsafe.Pointer(u16(k.text))),
 			uintptr(wsChild|k.style), uintptr(k.x), uintptr(k.y), uintptr(k.w), uintptr(k.h), w.hwnd, uintptr(k.id), inst, 0)
@@ -317,6 +349,33 @@ func (w *window) tray(op uintptr) {
 	tip, _ := syscall.UTF16FromString("Stockpile Print Helper")
 	copy(nid.Tip[:], tip)
 	pShellNotifyIconW.Call(op, uintptr(unsafe.Pointer(&nid)))
+}
+
+// startupNote says how the helper starts and updates: by itself from the
+// Microsoft Store package, by hand for the plain .exe.
+func startupNote() string {
+	if packaged() {
+		return "Starts when you sign in to Windows (turn that off in Windows Settings › Apps › Startup). Updates come through the Microsoft Store."
+	}
+	return "To start it when you sign in, put a shortcut to it in your Startup folder (Win+R, then shell:startup). For updates, download the newest release."
+}
+
+// fit puts the message and footer lines under the view that shows (not
+// paired: the pairing steps; paired: printers and jobs) and sizes the
+// window to it, so neither view leaves a gap or cuts anything off.
+func (w *window) fit(paired bool) {
+	msg, foot, client := [4]int{16, 262, 470, 46}, [4]int{16, 316, 470, 68}, 396
+	if paired {
+		msg, foot, client = [4]int{226, 616, 260, 68}, [4]int{16, 690, 470, 68}, 770
+	}
+	for id, r := range map[int][4]int{idMsg: msg, idFooter: foot} {
+		pSetWindowPos.Call(w.ctl[id], 0, uintptr(r[0]), uintptr(r[1]), uintptr(r[2]), uintptr(r[3]), swpNoZOrder|swpNoActivate)
+	}
+	var wr, cr rect
+	pGetWindowRect.Call(w.hwnd, uintptr(unsafe.Pointer(&wr)))
+	pGetClientRect.Call(w.hwnd, uintptr(unsafe.Pointer(&cr)))
+	frame := (wr.Bottom - wr.Top) - (cr.Bottom - cr.Top)
+	pSetWindowPos.Call(w.hwnd, 0, 0, 0, uintptr(wr.Right-wr.Left), uintptr(int32(client)+frame), swpNoMove|swpNoZOrder|swpNoActivate)
 }
 
 func (w *window) set(id int, text string) {
@@ -386,6 +445,7 @@ func (w *window) refresh() {
 	case !v.Paired:
 		w.visible(false, paired...)
 		w.visible(true, unpaired...)
+		w.fit(false)
 		if v.Removed != "" {
 			w.set(idStatus, "Removed from "+v.Removed)
 			w.set(idStatusSub, "The shop's owner removed this computer in Stockpile. It isn't connected and won't print anything.")
@@ -396,6 +456,7 @@ func (w *window) refresh() {
 	default:
 		w.visible(false, unpaired...)
 		w.visible(true, paired...)
+		w.fit(true)
 		switch {
 		case v.Paused:
 			dot = DotAmber
@@ -440,7 +501,7 @@ func (w *window) refresh() {
 		}
 		w.list(idJobs, js)
 	}
-	w.set(idFooter, fmt.Sprintf("Version %s. What this does and doesn't do, and the source: see the README in the Stockpile Print Helper's source. Log folder: %s", w.app.Version, v.LogDir))
+	w.set(idFooter, fmt.Sprintf("Version %s · Log folder: %s · What it does and doesn't, and its source: github.com/NerdbucketInc/stockpile-print-helper", w.app.Version, v.LogDir))
 	var d *color.RGBA
 	switch dot {
 	case DotGreen:
